@@ -21,17 +21,6 @@
 		</pluginRepository>
 	</pluginRepositories>
 	
-<distributionManagement>
-        <repository>
-                <id>se</id>
-                <url>dav:https://webdav.labri.fr/vhosts/se.labri.fr/maven/</url>
-        </repository>
-        <snapshotRepository>
-                <id>se</id>
-                <url>dav:https://webdav.labri.fr/vhosts/se.labri.fr/maven/</url>
-        </snapshotRepository>
-</distributionManagement>
-
 	<repositories>
 		<repository>
 			<id>sphere</id>
