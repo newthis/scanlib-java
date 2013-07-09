@@ -20,17 +20,17 @@
 			<url>http://onejar-maven-plugin.googlecode.com/svn/mavenrepo</url>
 		</pluginRepository>
 	</pluginRepositories>
-	
-<distributionManagement>
-        <repository>
-                <id>se</id>
-                <url>dav:https://webdav.labri.fr/vhosts/se.labri.fr/maven/</url>
-        </repository>
-        <snapshotRepository>
-                <id>se</id>
-                <url>dav:https://webdav.labri.fr/vhosts/se.labri.fr/maven/</url>
-        </snapshotRepository>
-</distributionManagement>
+
+	<distributionManagement>
+		<repository>
+			<id>se</id>
+			<url>dav:https://webdav.labri.fr/vhosts/se.labri.fr/maven/</url>
+		</repository>
+		<snapshotRepository>
+			<id>se</id>
+			<url>dav:https://webdav.labri.fr/vhosts/se.labri.fr/maven/</url>
+		</snapshotRepository>
+	</distributionManagement>
 
 	<repositories>
 		<repository>
@@ -69,21 +69,21 @@
 				</executions>
 			</plugin>
 
-     <plugin>
-       <artifactId>maven-deploy-plugin</artifactId>
-       <version>2.5</version>
-       <dependencies>
-         <dependency>
-           <groupId>org.apache.maven.wagon</groupId>
-           <artifactId>wagon-webdav</artifactId>
-           <version>1.0-beta-2</version>
-         </dependency>
-       </dependencies>
-     </plugin>
-    
+			<plugin>
+				<artifactId>maven-deploy-plugin</artifactId>
+				<version>2.5</version>
+				<dependencies>
+					<dependency>
+						<groupId>org.apache.maven.wagon</groupId>
+						<artifactId>wagon-webdav</artifactId>
+						<version>1.0-beta-2</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+
 		</plugins>
 	</build>
-	
+
 	<dependencies>
 
 		<dependency>
