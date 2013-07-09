@@ -1,0 +1,3 @@
+06-04 17:20:18 jdbc[2]: exception
+org.h2.jdbc.JdbcSQLException: Table "REGEXP" not found; SQL statement:
+Select * From REGEXP [42102-171]
