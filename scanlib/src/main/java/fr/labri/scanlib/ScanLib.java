@@ -12,7 +12,6 @@ import java.util.TreeSet;
 import java.util.Map;
 import java.util.Set;
 
-
 import org.arabidopsis.ahocorasick.AhoCorasick;
 import org.arabidopsis.ahocorasick.OutputResult;
 
@@ -24,46 +23,31 @@ public class ScanLib {
 
 	private static AhoCorasick tree = null;
 
-	private static Map<String,String> database = new HashMap<String, String>();
+	private static Map<String, String> database = new HashMap<String, String>();
 
 	private ScanLib(String file) {
 		tree = new AhoCorasick();
+		database.clear();
 		database = DB.readContentIndex(file);
-		for(String kw : database.keySet()) {
+		for (String kw : database.keySet()) {
 			tree.add(kw);
 		}
 		tree.prepare();
 	}
 
-	/*
-	 * Returns a collection of libraries used by a project
+	/**
+	 * Load a database of library from a given xml File
 	 */
-	public static Set<String> findLibraries(String dir) {
-		
-		TreeSet<String> libraries = new TreeSet<String>();
-		javaxt.io.Directory directory = new javaxt.io.Directory(dir);
-		javaxt.io.File[] files = directory.getFiles("*.java", true);
-		for(javaxt.io.File file : files){
-			if(!file.isHidden()) {
-				try {
-					byte[] encoded;
-					encoded = Files.readAllBytes(Paths.get(file.getPath()+file.getName()));
-					libraries.addAll(ScanLib.getInstance().getLibraries(Charset.forName("UTF-8").decode(ByteBuffer.wrap(encoded)).toString()));
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}		
-		}		
-		return libraries;
-	}
-	
 	public static ScanLib buildFromFile(String file) {
 		if (null == instance) { // Premier appel
 			instance = new ScanLib(file);
 		}
 		return instance;
 	}
-	
+
+	/**
+	 * Get the current instance of ScanLib
+	 */
 	public static ScanLib getInstance() {
 		if (null == instance) { // Premier appel
 			instance = new ScanLib("scanlib-data.xml");
@@ -71,57 +55,104 @@ public class ScanLib {
 		return instance;
 	}
 
-	/*
+	/**
 	 * Runtime addition of data in the ScanLib database
+	 * @param keyword the associated keyword
+	 * @param library the name of the library 
 	 */
-	public static void add(String library, String keyword){
+	public static void add(String keyword, String library) {
 		database.put(keyword, library);
 	}
-	
-	/*
+
+	/**
 	 * Runtime deletion of data in the ScanLib database
 	 */
-	public static void remove(String keyword){
+	public static void remove(String keyword) {
 		database.remove(keyword);
 	}
-	
-	/*
+
+	/**
 	 * Save the current ScanLib database in a XML File
 	 */
-	public static void saveDB(String file){
+	public static void saveDB(String file) {
 		DB.saveContent(database, file);
 	}
-	
-	/*
+
+	/**
 	 * Runtime addition of data in the ScanLib database
 	 */
-	public static Set<String> getKeywords(String library) throws LibraryNotFoundException{
-		if(database.values().contains(library)) {
+	public static Set<String> getKeywords(String library)
+			throws LibraryNotFoundException {
+		if (database.values().contains(library)) {
 			TreeSet<String> kw = new TreeSet<String>();
-			for(String k : database.keySet()) {
-				if(database.get(k).equals(library))
+			for (String k : database.keySet()) {
+				if (database.get(k).equals(library))
 					kw.add(k);
 			}
 			return kw;
-		}
-		else {
-			throw new LibraryNotFoundException("Library "+library+" does not exist in current ScanLib database");
+		} else {
+			throw new LibraryNotFoundException("Library " + library
+					+ " does not exist in current ScanLib database");
 		}
 	}
 	
-	public static Set<String> searchKeyword(String keyword){
+	/**
+	 * Returns a collection of libraries used by a project
+	 */
+	public static Set<String> computeLibraries(String dir) {
+
+		TreeSet<String> libraries = new TreeSet<String>();
+		javaxt.io.Directory directory = new javaxt.io.Directory(dir);
+		javaxt.io.File[] files = directory.getFiles("*.java", true);
+		for (javaxt.io.File file : files) {
+			if (!file.isHidden()) {
+				try {
+					byte[] encoded;
+					encoded = Files.readAllBytes(Paths.get(file.getPath()
+							+ file.getName()));
+					libraries.addAll(instance.searchLibraries((
+							Charset.forName("UTF-8")
+									.decode(ByteBuffer.wrap(encoded))
+									.toString())));
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		return libraries;
+	}
+	
+	/**
+	 * Returns true if the directory contains code that use a given library
+	 */
+	public static boolean hasLibrary(String dir, String lib) {
+		return computeLibraries(dir).contains(lib);
+	}
+
+
+	/**
+	 * Get a list of keywords that match a given targeted keyword
+	 * @param keyword
+	 * @return
+	 */
+	public static Set<String> searchKeyword(String keyword) {
 		Set<String> res = new HashSet<String>();
-		for(String k : database.keySet()) {
-			if(k.contains(keyword)) {
-				res.add(database.get(k)+"::"+k);
+		for (String k : database.keySet()) {
+			if (k.contains(keyword)) {
+				res.add(database.get(k) + "::" + k);
 			}
 		}
 		return res;
 	}
-	
-	private static Set<String> getLibraries(String text) {
+
+	/**
+	 * Get a list of libraries that match a given targeted library
+	 * @param keyword
+	 * @return
+	 */
+	private static Set<String> searchLibraries(String text) {
 		Set<String> resultats = new HashSet<String>();
-		for(OutputResult res : tree.completeSearch(text, false, false)) {
+		for (OutputResult res : tree.completeSearch(text, false, false)) {
 			resultats.add(database.get(res.getOutput()));
 		}
 		return resultats;

@@ -1,6 +1,7 @@
 package fr.labri.scanlib.database;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -8,14 +9,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.TreeSet;
+
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
+import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
@@ -68,7 +70,14 @@ public class DB {
 					}
 				}
 			};
-			saxParser.parse(file, handler);
+		
+			if(new File(file).exists())
+				saxParser.parse(file, handler);
+			else {
+				InputStream is = DB.class.getResourceAsStream(file);
+				saxParser.parse(is, handler);
+			}
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -113,6 +122,12 @@ public class DB {
 				}
 			};
 			saxParser.parse(file, handler);
+			if(new File(file).exists())
+				saxParser.parse(file, handler);
+			else {
+				InputStream is = DB.class.getResourceAsStream(file);
+				saxParser.parse(is, handler);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -146,6 +161,12 @@ public class DB {
 			}
 		}
 	}
+	
+	public static void main(String[] args) {
+		Map<String,String> db = readContentIndex("scanlib-data.xml");
+
+		saveContent(db, "scanlib-data.xml");
+	}
 
 	public static void writeContent(Map<String, Set<String>> database, String file) {
 		try {
@@ -177,6 +198,8 @@ public class DB {
 
 			TransformerFactory transformerFactory = TransformerFactory.newInstance();
 			Transformer transformer = transformerFactory.newTransformer();
+			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+			transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
 			DOMSource source = new DOMSource(doc);
 			StreamResult result = new StreamResult(new File(file));
 
