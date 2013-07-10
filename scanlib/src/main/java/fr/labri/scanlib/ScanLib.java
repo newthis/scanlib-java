@@ -44,6 +44,13 @@ public class ScanLib {
 		}
 		return instance;
 	}
+	
+	/**
+	 * Load a database of library from a given xml File
+	 */
+	public static Set<String> getDatabaseContent() {
+		return new HashSet<String>(database.values());
+	}
 
 	/**
 	 * Get the current instance of ScanLib
