@@ -74,7 +74,7 @@ public class DB {
 			if(new File(file).exists())
 				saxParser.parse(file, handler);
 			else {
-				InputStream is = DB.class.getResourceAsStream(file);
+				InputStream is = ClassLoader.getSystemClassLoader().getResourceAsStream(file);
 				saxParser.parse(is, handler);
 			}
 			
