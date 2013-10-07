@@ -1,5 +1,6 @@
 package fr.labri.scanlib;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
@@ -8,7 +9,6 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.TreeSet;
-
 import java.util.Map;
 import java.util.Set;
 
@@ -24,11 +24,18 @@ public class ScanLib {
 	private static AhoCorasick tree = null;
 
 	private static Map<String, String> database = new HashMap<String, String>();
-
-	private ScanLib(String file) {
+	
+	private ScanLib() {
 		tree = new AhoCorasick();
 		database.clear();
-		database = DB.readContentIndex(file);
+		tree.prepare();
+	}
+	
+	private ScanLib(String file) {
+		System.out.println("Trying to open "+new File(file).getPath());
+		tree = new AhoCorasick();
+		database.clear();
+		database = DB.readContentIndex(new File(file).getPath());
 		for (String kw : database.keySet()) {
 			tree.add(kw);
 		}
@@ -51,7 +58,17 @@ public class ScanLib {
 	public static Set<String> getDatabaseContent() {
 		return new HashSet<String>(database.values());
 	}
-
+	
+	/**
+	 * Get the current instance of ScanLib
+	 */
+	public static ScanLib getEmptyInstance() {
+		if (null == instance) { // Premier appel
+			instance = new ScanLib();
+		}
+		return instance;
+	}
+	
 	/**
 	 * Get the current instance of ScanLib
 	 */
@@ -69,6 +86,11 @@ public class ScanLib {
 	 */
 	public static void add(String keyword, String library) {
 		database.put(keyword, library);
+		tree = new AhoCorasick();
+		for (String kw : database.keySet()) {
+			tree.add(kw);
+		}
+		tree.prepare();
 	}
 
 	/**

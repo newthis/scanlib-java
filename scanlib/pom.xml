@@ -70,7 +70,6 @@
 	</build>
 
 	<dependencies>
-
 		<dependency>
 			<groupId>javaxt</groupId>
 			<artifactId>javaxt-core</artifactId>
