@@ -6,8 +6,10 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.TreeSet;
 import java.util.Map;
 import java.util.Set;
@@ -98,6 +100,11 @@ public class ScanLib {
 	 */
 	public static void remove(String keyword) {
 		database.remove(keyword);
+		tree = new AhoCorasick();
+		for (String kw : database.keySet()) {
+			tree.add(kw);
+		}
+		tree.prepare();
 	}
 
 	/**
@@ -149,6 +156,36 @@ public class ScanLib {
 			}
 		}
 		return libraries;
+	}
+	
+	public static List<DataLib> computeLibrariesWithData(String dir) {
+		Map<String,Integer> cptFiles = new HashMap<String, Integer>();
+		javaxt.io.Directory directory = new javaxt.io.Directory(dir);
+		javaxt.io.File[] files = directory.getFiles("*.java", true);
+		int cpt=0;
+		for (javaxt.io.File file : files) {
+			if (!file.isHidden()) {
+				cpt++;
+				try {
+					byte[] encoded;
+					encoded = Files.readAllBytes(Paths.get(file.getPath()
+							+ file.getName()));
+					for(String lib : instance.searchLibraries((
+							Charset.forName("UTF-8")
+							.decode(ByteBuffer.wrap(encoded))
+							.toString())) ) 
+						cptFiles.put(lib, cptFiles.containsKey(lib) ? cptFiles.get(lib)+1 : 1);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	
+		List<DataLib> data = new ArrayList<DataLib>();
+		for(String lib : cptFiles.keySet()) {
+			data.add(new DataLib(lib, cptFiles.get(lib), (double)cptFiles.get(lib)/(double)cpt, cpt));
+		}
+		return data;
 	}
 	
 	/**
