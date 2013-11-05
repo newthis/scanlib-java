@@ -55,7 +55,7 @@ public class ScanLib {
 	}
 	
 	/**
-	 * Load a database of library from a given xml File
+	 * Return the list of libraries used
 	 */
 	public static Set<String> getDatabaseContent() {
 		return new HashSet<String>(database.values());
@@ -216,7 +216,7 @@ public class ScanLib {
 	 * @param keyword
 	 * @return
 	 */
-	private static Set<String> searchLibraries(String text) {
+	public static Set<String> searchLibraries(String text) {
 		Set<String> resultats = new HashSet<String>();
 		for (OutputResult res : tree.completeSearch(text, false, false)) {
 			resultats.add(database.get(res.getOutput()));

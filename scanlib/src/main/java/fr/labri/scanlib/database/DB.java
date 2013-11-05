@@ -33,7 +33,6 @@ import org.xml.sax.helpers.DefaultHandler;
 
 public class DB {
 
-
 	/*
 	 * Return with format "keyword -> library"
 	 */
