@@ -162,8 +162,7 @@ public class DB {
 	}
 	
 	public static void main(String[] args) {
-		Map<String,String> db = readContentIndex("scanlib-data.xml");
-
+		Map<String,String> db = readContentIndex("scanlib-data-bob.xml");
 		saveContent(db, "scanlib-data.xml");
 	}
 
@@ -201,8 +200,8 @@ public class DB {
 			transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
 			DOMSource source = new DOMSource(doc);
 			StreamResult result = new StreamResult(new File(file));
-
 			transformer.transform(source, result);
+
 		} catch (ParserConfigurationException e) {
 			e.printStackTrace();
 		} catch (TransformerException e) {
