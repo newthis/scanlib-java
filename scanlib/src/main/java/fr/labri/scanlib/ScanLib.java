@@ -9,6 +9,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.TreeSet;
 import java.util.Map;
@@ -26,13 +27,13 @@ public class ScanLib {
 	private static AhoCorasick tree = null;
 
 	private static Map<String, String> database = new HashMap<String, String>();
-	
+
 	private ScanLib() {
 		tree = new AhoCorasick();
 		database.clear();
 		tree.prepare();
 	}
-	
+
 	private ScanLib(String file) {
 		System.out.println("Trying to open "+new File(file).getPath());
 		tree = new AhoCorasick();
@@ -53,14 +54,14 @@ public class ScanLib {
 		}
 		return instance;
 	}
-	
+
 	/**
 	 * Return the list of libraries used
 	 */
 	public static Set<String> getDatabaseContent() {
 		return new HashSet<String>(database.values());
 	}
-	
+
 	/**
 	 * Get the current instance of ScanLib
 	 */
@@ -70,7 +71,7 @@ public class ScanLib {
 		}
 		return instance;
 	}
-	
+
 	/**
 	 * Get the current instance of ScanLib
 	 */
@@ -131,7 +132,7 @@ public class ScanLib {
 					+ " does not exist in current ScanLib database");
 		}
 	}
-	
+
 	/**
 	 * Returns a collection of libraries used by a project
 	 */
@@ -148,8 +149,8 @@ public class ScanLib {
 							+ file.getName()));
 					libraries.addAll(instance.searchLibraries((
 							Charset.forName("UTF-8")
-									.decode(ByteBuffer.wrap(encoded))
-									.toString())));
+							.decode(ByteBuffer.wrap(encoded))
+							.toString())));
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -157,9 +158,9 @@ public class ScanLib {
 		}
 		return libraries;
 	}
-	
+
 	public static List<DataLib> computeLibrariesWithData(String dir) {
-		Map<String,Integer> cptFiles = new HashMap<String, Integer>();
+		Map<String,Set<String>> cptFiles = new HashMap<String, Set<String>>();
 		javaxt.io.Directory directory = new javaxt.io.Directory(dir);
 		javaxt.io.File[] files = directory.getFiles("*.java", true);
 		int cpt=0;
@@ -173,21 +174,24 @@ public class ScanLib {
 					for(String lib : instance.searchLibraries((
 							Charset.forName("UTF-8")
 							.decode(ByteBuffer.wrap(encoded))
-							.toString())) ) 
-						cptFiles.put(lib, cptFiles.containsKey(lib) ? cptFiles.get(lib)+1 : 1);
+							.toString())) ) {
+						if(cptFiles.containsKey(lib)==false)
+							cptFiles.put(lib, new HashSet<String>());
+						cptFiles.get(lib).add(file.getPath());
+					}
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
 			}
 		}
-	
+
 		List<DataLib> data = new ArrayList<DataLib>();
 		for(String lib : cptFiles.keySet()) {
-			data.add(new DataLib(lib, cptFiles.get(lib), (double)cptFiles.get(lib)/(double)cpt, cpt));
+			data.add(new DataLib(lib, cptFiles.get(lib).size(), (double)cptFiles.get(lib).size()/(double)cpt, cpt, cptFiles.get(lib)));
 		}
 		return data;
 	}
-	
+
 	/**
 	 * Returns true if the directory contains code that use a given library
 	 */
